@@ -5,19 +5,56 @@
  */
 package Interfaz;
 
+import entidades.Ronda;
+import entidades.Usuario;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.table.DefaultTableModel;
+import sql.DBQuery;
+
 
 /**
  *
  * @author Frognas
  */
 public class ReportesMenu extends javax.swing.JFrame {
-
+    static Usuario user;
+    DBQuery query ;
+    
+    private List<Ronda> list;
     /**
      * Creates new form Reportes
+     * @throws java.sql.SQLException
      */
-    public ReportesMenu() {
+    public ReportesMenu(Usuario user) throws SQLException {
+        System.out.println(user.getIdUsuario());
+        this.user=user;
+       String idUsuario= Integer.toString(user.getIdUsuario());
         initComponents();
         
+        list = new ArrayList<>();
+        String headers[] = {"Id Ronda","Flecha 1","Flecha 2","Flecha 3"};
+        String data[][] = getData(idUsuario);
+        DefaultTableModel model = new DefaultTableModel(data, headers);
+        jTableRondas.setModel(model);
+        
+    }
+    private String[][] getData(String idUsuario) throws SQLException {
+        query = new DBQuery();
+        list = query.Rondas(idUsuario);
+        String[][] mData = new String[list.size()][5];
+        
+        for (int i = 0; i < mData.length; i++) {
+            mData[i][0] = Integer.toString(list.get(i).getIdRonda());
+            mData[i][1] = Integer.toString(list.get(i).getPuntaje1());
+            mData[i][2] = Integer.toString(list.get(i).getPuntaje2());
+            mData[i][3] = Integer.toString(list.get(i).getPuntaje3());
+        }
+        return mData;
     }
 
     
@@ -32,7 +69,7 @@ public class ReportesMenu extends javax.swing.JFrame {
 
         jLabelRegresar = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        jTableRondas = new javax.swing.JTable();
         jLabelResultados = new javax.swing.JLabel();
         jLabelContrats = new javax.swing.JLabel();
         jLabelFondo = new javax.swing.JLabel();
@@ -50,7 +87,7 @@ public class ReportesMenu extends javax.swing.JFrame {
         });
         getContentPane().add(jLabelRegresar, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 380, -1, -1));
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        jTableRondas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -61,7 +98,7 @@ public class ReportesMenu extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane2.setViewportView(jTable2);
+        jScrollPane2.setViewportView(jTableRondas);
 
         getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 120, 510, 230));
 
@@ -117,7 +154,11 @@ public class ReportesMenu extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ReportesMenu().setVisible(true);
+                try {
+                    new ReportesMenu(user).setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(ReportesMenu.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -128,6 +169,6 @@ public class ReportesMenu extends javax.swing.JFrame {
     private javax.swing.JLabel jLabelRegresar;
     private javax.swing.JLabel jLabelResultados;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable2;
+    private javax.swing.JTable jTableRondas;
     // End of variables declaration//GEN-END:variables
 }

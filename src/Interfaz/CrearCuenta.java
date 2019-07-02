@@ -7,17 +7,22 @@ package Interfaz;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import sql.Conexion;
+import sql.Create;
 import sql.DBQuery;
 
 /**
  *
  * @author Frognas
  */
-public class CrearCuenta extends javax.swing.JFrame {
+public class CrearCuenta extends javax.swing.JFrame implements Create {
 
     DBQuery query;
+    private Conexion conexion;
     /**
      * Creates new form SignIn
      */
@@ -25,6 +30,7 @@ public class CrearCuenta extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         query = new DBQuery();
+        conexion= new Conexion();
     }
 
     
@@ -34,6 +40,26 @@ public class CrearCuenta extends javax.swing.JFrame {
         jTextContraseña2.setText("");
     }
     
+    @Override
+    public boolean Create() {
+        String query1 = "INSERT INTO usuario (nombre, contraseña) VALUES (?,?)";
+        String password = query.MD5(new String(jTextContraseña.getPassword()));
+        try{
+            Connection con = conexion.getConnection();
+            PreparedStatement pstm = con.prepareStatement(query1);
+            pstm.setString(1, jTextUsuario.getText());
+            pstm.setString(2, password);
+            
+            if(pstm.executeUpdate() > 0){
+                return true;
+            }
+        } catch(Exception error){
+            error.printStackTrace();
+            return false;
+        } 
+        
+        return true;
+    }
     
     
     
@@ -144,18 +170,14 @@ public class CrearCuenta extends javax.swing.JFrame {
         if (jTextUsuario.getText().isEmpty() || jTextContraseña.getPassword().equals("") || jTextContraseña2.getPassword().equals("")) {
             JOptionPane.showMessageDialog(this, "Error: Campos no pueden estar vacios.", "Alert", JOptionPane.WARNING_MESSAGE);
         }else{
-            try{
-                if (new String(jTextContraseña.getPassword()).equals(new String(jTextContraseña2.getPassword())) &&
-                        query.registrarUsuario(jTextUsuario.getText(), new String(jTextContraseña.getPassword()))) {
-                    JOptionPane.showMessageDialog(this, "Usuario creado con exito.", "Succes", JOptionPane.INFORMATION_MESSAGE);
-                    new IniciarSesion().setVisible(true);
-                    this.setVisible(false);
-                    
-                } else {
-                    JOptionPane.showMessageDialog(this, "Error al consultar la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch(SQLException e){
-                e.printStackTrace();
+            if (new String(jTextContraseña.getPassword()).equals(new String(jTextContraseña2.getPassword())) &&
+                    Create()) {
+                JOptionPane.showMessageDialog(this, "Usuario creado con exito.", "Succes", JOptionPane.INFORMATION_MESSAGE);
+                new IniciarSesion().setVisible(true);
+                this.setVisible(false);
+                
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al consultar la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }//GEN-LAST:event_jLabelCrearCuentaMouseClicked
@@ -219,4 +241,6 @@ public class CrearCuenta extends javax.swing.JFrame {
     private javax.swing.JPasswordField jTextContraseña2;
     private javax.swing.JTextField jTextUsuario;
     // End of variables declaration//GEN-END:variables
+
+    
 }

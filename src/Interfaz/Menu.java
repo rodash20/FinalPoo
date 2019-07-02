@@ -6,6 +6,9 @@
 package Interfaz;
 
 import entidades.Usuario;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,6 +25,7 @@ public class Menu extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         this.user = user;
+        
     }
 
     /**
@@ -85,8 +89,12 @@ public class Menu extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabelCerrarSesionMouseClicked
 
     private void jLabelReportesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelReportesMouseClicked
-        // TODO add your handling code here:
-        new ReportesMenu().setVisible(true);
+        try {
+            // TODO add your handling code here:
+            new ReportesMenu(user).setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }//GEN-LAST:event_jLabelReportesMouseClicked
 

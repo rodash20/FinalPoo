@@ -20,6 +20,7 @@ import sql.DBQuery;
  */
 public class IniciarSesion extends javax.swing.JFrame {
     Color color;
+    static Usuario user;
 
     /**
      * Creates new form Login
@@ -144,9 +145,10 @@ public class IniciarSesion extends javax.swing.JFrame {
         DBQuery query = new DBQuery();
         
         try{
-            Usuario user = query.login(jTextUsuario.getText(), query.MD5(new String(jTextContraseña.getPassword())));
+            user = query.login(jTextUsuario.getText(), query.MD5(new String(jTextContraseña.getPassword())));
             if (user != null) {
                 limpiarCampos();
+                
                 setVisible(false);
                new Menu(user).setVisible(true);
             } else{

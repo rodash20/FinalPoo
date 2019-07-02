@@ -11,22 +11,57 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import sql.DBQuery;
 import entidades.Ronda;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.List;
+import sql.Conexion;
+import sql.Create;
 
 /**
  *
  * @author Frognas
  */
-public class PuntajesMenu extends javax.swing.JFrame {
+public class PuntajesMenu extends javax.swing.JFrame implements Create {
 Usuario user;
+DBQuery query;
+private Conexion conexion;
+
     /**
      * Creates new form IngresarPuntajes
      */
     public PuntajesMenu(Usuario user) {
         this.user = user;
         initComponents();
+        query = new DBQuery();
+        conexion= new Conexion();
         
     }
 
+    
+    @Override
+    public boolean Create() {
+        String query = "INSERT INTO rondas (tiro1,tiro2,tiro3,id_usuario) VALUES (?,?,?,?)";
+        try{
+            Connection con = conexion.getConnection();
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, jComboBoxLanzamiento1.getSelectedIndex());
+            ps.setInt(2, jComboBoxLanzamiento2.getSelectedIndex());
+            ps.setInt(3, jComboBoxLanzamiento3.getSelectedIndex());
+            ps.setInt(4, user.getIdUsuario());
+            
+            if (ps.executeUpdate() > 0) {
+                return true;
+            }
+        } catch(SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+        return false;
+       
+    }
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -164,7 +199,7 @@ Usuario user;
         DBQuery query = new DBQuery();
            Ronda ronda = new Ronda();
             try{
-                if (query.añadirRonda(jComboBoxLanzamiento1.getSelectedIndex(), jComboBoxLanzamiento2.getSelectedIndex(), jComboBoxLanzamiento3.getSelectedIndex())) {
+                if (Create()) {
                     JOptionPane.showMessageDialog(this, "Ronda agregada exitosamente!.", "Succes", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     JOptionPane.showMessageDialog(this, "Error al consultar la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -194,4 +229,6 @@ Usuario user;
     private javax.swing.JLabel lblTiro2;
     private javax.swing.JLabel lblTiro3;
     // End of variables declaration//GEN-END:variables
+
+    
 }

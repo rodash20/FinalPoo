@@ -24,26 +24,7 @@ public class DBQuery {
         conexion = new Conexion();
     }
     
-    public boolean registrarUsuario(String nombre, String contraseña) throws SQLException{
-
-        String query = "INSERT INTO usuario (nombre, contraseña) VALUES (?,?)";
-        String password = MD5(contraseña);
-        try{
-            Connection con = conexion.getConnection();
-            PreparedStatement pstm = con.prepareStatement(query);
-            pstm.setString(1, nombre);
-            pstm.setString(2, password);
-            
-            if(pstm.executeUpdate() > 0){
-                return true;
-            }
-        } catch(Exception error){
-            error.printStackTrace();
-            return false;
-        } 
-        
-        return true;
-    }
+    
 
     public Usuario login(String nombre, String contraseña) throws SQLException{
         boolean flag = false;
@@ -59,6 +40,7 @@ public class DBQuery {
             while(rs.next()){
                 usuario.setUsername(rs.getString("nombre"));
                 usuario.setPassword(rs.getString("contraseña"));
+                usuario.setIdUsuario(rs.getInt("id"));
                 flag = true;
             }
             if (!flag) usuario = null;
@@ -85,25 +67,35 @@ public class DBQuery {
     }
       
         
-       public boolean añadirRonda(int p1, int p2, int p3) throws SQLException{
-        String query = "INSERT INTO ronda (tiro1,tiro2,tiro3) VALUES (?,?,?)";
-        try{
-            Connection con = conexion.getConnection();
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setInt(1, p1);
-            ps.setInt(2, p2);
-            ps.setInt(3, p3);
-            
-            if (ps.executeUpdate() > 0) {
-                return true;
-            }
-        } catch(SQLException e){
-            e.printStackTrace();
-            return false;
-        }
-        return false;
-    }
+
+       
         
+        public List<Ronda> Rondas(String userId) throws SQLException{
+           conexion = new Conexion();
+           Connection conn = conexion.getConnection();
+           List<Ronda> listp = new ArrayList<>();
+
+        
+        try{
+            String query = "SELECT id, tiro1, tiro2, tiro3 FROM public.rondas where id_usuario="+userId+";";
+            PreparedStatement stm = conn.prepareStatement(query);
+            ResultSet rs = stm.executeQuery();
+            while(rs.next()){
+                Ronda p = new Ronda();
+                p.setIdRonda(rs.getInt("id"));
+                p.setPuntaje1(rs.getInt("tiro1"));
+                p.setPuntaje2(rs.getInt("tiro2"));
+                p.setPuntaje3(rs.getInt("tiro3"));
+               
+                listp.add(p);
+            }
+        }catch(SQLException ex){
+            ex.printStackTrace();
+        }finally{
+            conn.close();
+        }
+        return listp;
+    }
    
    
 }
